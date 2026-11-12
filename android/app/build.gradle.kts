@@ -44,6 +44,21 @@ android {
         }
     }
 
+    buildTypes {
+        debug {
+            // Use the shared release certificate for two-app IPC tests when configured.
+            signingConfigs.findByName("release")?.let { signingConfig = it }
+        }
+        release {
+            signingConfig = signingConfigs.findByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            // Reproducible builds: AGP otherwise bakes the git hash into META-INF.
+            vcsInfo { include = false }
+        }
+    }
+
     buildFeatures { compose = true; buildConfig = true }
 
     compileOptions {
