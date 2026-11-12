@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <permission android:name="si.jakobkreft.aftergleam.permission.READ_RESEARCH_WIDGETS" android:protectionLevel="signature" android:label="Read Aftergleam paper widgets data" android:description="Allows the signed Research Widgets companion to read paper titles and basic metadata." />
+    <permission android:name="si.jakobkreft.aftergleam.permission.READ_RESEARCH_WIDGETS" android:protectionLevel="signature" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
