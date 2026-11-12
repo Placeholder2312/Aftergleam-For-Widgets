@@ -20,7 +20,18 @@ jobs:
         uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools platforms;android-37.0'
+      - name: Prepare optional shared IPC keystore
+        if: ${{ secrets.RESEARCH_WIDGETS_KEYSTORE_BASE64 != '' }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.RESEARCH_WIDGETS_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/research-widgets-ipc.jks"
+          echo "RESEARCH_WIDGETS_KEYSTORE=$RUNNER_TEMP/research-widgets-ipc.jks" >> "$GITHUB_ENV"
       - name: Run tests and build debug APK
+        env:
+          RESEARCH_WIDGETS_KEYSTORE_PASSWORD: ${{ secrets.RESEARCH_WIDGETS_KEYSTORE_PASSWORD }}
+          RESEARCH_WIDGETS_KEY_ALIAS: ${{ secrets.RESEARCH_WIDGETS_KEY_ALIAS }}
+          RESEARCH_WIDGETS_KEY_PASSWORD: ${{ secrets.RESEARCH_WIDGETS_KEY_PASSWORD }}
         working-directory: android
         run: ./gradlew --no-daemon testDebugUnitTest assembleDebug
       - name: Upload debug APK
