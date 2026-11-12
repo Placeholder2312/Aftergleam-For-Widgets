@@ -16,49 +16,31 @@ android {
     }
 
     /**
-     * Release signing, read from the environment or from ~/.gradle/gradle.properties.
-     *
-     * Never from the repository. With nothing configured the release build is simply left
-     * unsigned, which is what F-Droid wants: it builds from source and signs with its own key.
-     *
-     *   AFTERGLEAM_KEYSTORE           or  aftergleam.keystore
-     *   AFTERGLEAM_KEYSTORE_PASSWORD  or  aftergleam.keystorePassword
-     *   AFTERGLEAM_KEY_ALIAS          or  aftergleam.keyAlias
-     *   AFTERGLEAM_KEY_PASSWORD       or  aftergleam.keyPassword
+     * Both custom apps must use the same locally controlled certificate for signature-level IPC.
+     * Prefer RESEARCH_WIDGETS_* so Aftergleam and its companion resolve exactly the same key.
+     * Legacy AFTERGLEAM_* values remain a fallback for standalone builds. Never commit secrets.
      */
-    fun secret(env: String, prop: String): String? =
-        System.getenv(env) ?: providers.gradleProperty(prop).orNull
+    fun secret(env: String, prop: String): String? = System.getenv(env) ?: providers.gradleProperty(prop).orNull
 
-    // F-Droid's build server deletes this block, and the `signingConfig =` line below, before
-    // it builds. Its clean-up only recognises that line when the value has no spaces in it, so
-    // it must stay exactly `signingConfigs.findByName("release")`. A longer expression was left
-    // in place and then failed on the missing config, which broke the 1.0.0 build there.
+    val sharedStore = secret("RESEARCH_WIDGETS_KEYSTORE", "researchWidgets.keystore")
+    val sharedStorePassword = secret("RESEARCH_WIDGETS_KEYSTORE_PASSWORD", "researchWidgets.keystorePassword")
+    val sharedKeyAlias = secret("RESEARCH_WIDGETS_KEY_ALIAS", "researchWidgets.keyAlias")
+    val sharedKeyPassword = secret("RESEARCH_WIDGETS_KEY_PASSWORD", "researchWidgets.keyPassword")
+    val releaseStore = sharedStore ?: secret("AFTERGLEAM_KEYSTORE", "aftergleam.keystore")
+    val releaseStorePassword = sharedStorePassword ?: secret("AFTERGLEAM_KEYSTORE_PASSWORD", "aftergleam.keystorePassword")
+    val releaseKeyAlias = sharedKeyAlias ?: secret("AFTERGLEAM_KEY_ALIAS", "aftergleam.keyAlias")
+    val releaseKeyPassword = sharedKeyPassword ?: secret("AFTERGLEAM_KEY_PASSWORD", "aftergleam.keyPassword")
+
+    // Source builds without local secrets remain unsigned. The custom fork is not F-Droid-update-compatible.
     signingConfigs {
-        secret("AFTERGLEAM_KEYSTORE", "aftergleam.keystore")?.let { path ->
-            create("release") {
-                storeFile = file(path)
-                storePassword = secret("AFTERGLEAM_KEYSTORE_PASSWORD", "aftergleam.keystorePassword")
-                keyAlias = secret("AFTERGLEAM_KEY_ALIAS", "aftergleam.keyAlias")
-                keyPassword = secret("AFTERGLEAM_KEY_PASSWORD", "aftergleam.keyPassword")
-                // v1 is not needed at minSdk 26, and its per-entry signatures would change the
-                // archive that F-Droid compares against its own build of the same commit.
-                enableV1Signing = false
-                enableV2Signing = true
-                enableV3Signing = true
-            }
-        }
-    }
-
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.findByName("release")
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // Reproducible builds: AGP otherwise bakes the git hash into META-INF, so no
-            // two checkouts of the same commit produce identical bytes. In AGP 9 this is
-            // a BuildType property, not an `android {}` one.
-            vcsInfo { include = false }
+        if (releaseStore != null) create("release") {
+            storeFile = file(releaseStore)
+            storePassword = releaseStorePassword
+            keyAlias = releaseKeyAlias
+            keyPassword = releaseKeyPassword
+            enableV1Signing = false
+            enableV2Signing = true
+            enableV3Signing = true
         }
     }
 

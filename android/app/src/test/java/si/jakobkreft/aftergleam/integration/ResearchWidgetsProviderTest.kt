@@ -17,12 +17,14 @@ import si.jakobkreft.aftergleam.data.Paper
 import si.jakobkreft.aftergleam.data.Reaction
 import si.jakobkreft.aftergleam.data.ShownItem
 import si.jakobkreft.aftergleam.data.Signal
+import java.time.LocalDate
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class ResearchWidgetsProviderTest {
     private val context = ApplicationProvider.getApplicationContext<android.content.Context>()
-    private fun paper(id: String) = Paper(id, "Title $id", "Private abstract must not be exposed", listOf("Ada Lovelace", "Grace Hopper"), listOf("cs.AI"), "2026-11-12", "2026-11-12")
+    private val today = LocalDate.now().toString()
+    private fun paper(id: String) = Paper(id, "Title $id", "Private abstract must not be exposed", listOf("Ada Lovelace", "Grace Hopper"), listOf("cs.AI"), today, today)
     private fun provider(): ResearchWidgetsProvider {
         context.deleteDatabase("aftergleam.db")
         val value = ResearchWidgetsProvider()
@@ -37,12 +39,12 @@ class ResearchWidgetsProviderTest {
     @Test fun recommendedUsesStoredRankOrderAndOnlyWidgetFields() {
         val p = provider(); val db = Db(context)
         db.upsertPapers(listOf(paper("rank-1"), paper("rank-2")))
-        db.markShown(listOf(ShownItem("rank-2", "RELEVANCE", "reason", 0.9f), ShownItem("rank-1", "RELEVANCE", "reason", 0.8f)), "2026-11-12")
+        db.markShown(listOf(ShownItem("rank-2", "RELEVANCE", "reason", 0.9f), ShownItem("rank-1", "RELEVANCE", "reason", 0.8f)), today)
         p.query(ResearchWidgetsContract.RECOMMENDED_URI, null, null, null, null).use {
             assertEquals(2, it.count); assertTrue(it.moveToFirst())
             assertEquals("rank-2", it.getString(it.getColumnIndexOrThrow(ResearchWidgetsContract.COLUMN_PAPER_ID)))
             assertEquals("Title rank-2", it.getString(it.getColumnIndexOrThrow(ResearchWidgetsContract.COLUMN_TITLE)))
-            assertEquals("Lovelace et al.", it.getString(it.getColumnIndexOrThrow(ResearchWidgetsContract.COLUMN_AUTHORS)))
+            assertEquals("Ada Lovelace, Grace Hopper", it.getString(it.getColumnIndexOrThrow(ResearchWidgetsContract.COLUMN_AUTHORS)))
             assertEquals("recommended", it.getString(it.getColumnIndexOrThrow(ResearchWidgetsContract.COLUMN_FEED_TYPE)))
             assertEquals(0, it.getInt(it.getColumnIndexOrThrow(ResearchWidgetsContract.COLUMN_FEED_POSITION)))
             assertFalse(it.columnNames.contains("abstract")); assertFalse(it.columnNames.contains("signals"))

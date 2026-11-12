@@ -58,7 +58,7 @@ class ResearchWidgetsProvider : ContentProvider() {
         val byId = db.papersById(ordered).associateBy(Paper::id)
         return ordered.mapNotNull { byId[it]?.toWidgetPaper() }
     }
-    private fun Paper.toWidgetPaper() = WidgetPaper(id, displayTitle, shortAuthors, sourceLabel ?: "arXiv", published)
+    private fun Paper.toWidgetPaper() = WidgetPaper(id, displayTitle, authors.joinToString(", "), sourceLabel ?: "arXiv", published)
     override fun getType(uri: Uri): String = when (matcher.match(uri)) {
         RECOMMENDED, SAVED -> "vnd.android.cursor.dir/vnd.${ResearchWidgetsContract.AUTHORITY}.paper"
         else -> throw IllegalArgumentException("Unknown widget feed")
