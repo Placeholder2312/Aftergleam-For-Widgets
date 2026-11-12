@@ -22,6 +22,7 @@ import si.jakobkreft.aftergleam.data.Paper
 import si.jakobkreft.aftergleam.data.PdfStore
 import si.jakobkreft.aftergleam.data.Prefs
 import si.jakobkreft.aftergleam.data.Signal
+import si.jakobkreft.aftergleam.integration.ResearchWidgetsNotifier
 import si.jakobkreft.aftergleam.ui.LibraryShelf
 import si.jakobkreft.aftergleam.ui.LibrarySort
 import java.time.LocalDate
@@ -248,7 +249,7 @@ object Notifications {
             val pending = goAsync()
             Thread {
                 try {
-                    runCatching { Db(app).save(paperId) }
+                    runCatching { Db(app).save(paperId); ResearchWidgetsNotifier.notifyDataChanged(app) }
                     val nm = app.getSystemService(NotificationManager::class.java)
                     nm?.cancel(id)
                     if (nm != null && group != null) {
