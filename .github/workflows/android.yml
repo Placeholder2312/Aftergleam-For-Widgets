@@ -16,16 +16,21 @@ jobs:
         uses: android-actions/setup-android@v4
         with:
           packages: 'platform-tools platforms;android-37.0'
-      - name: Prepare optional shared IPC keystore
+      - name: Configure required shared IPC keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.RESEARCH_WIDGETS_KEYSTORE_BASE64 }}
         run: |
-          if [ -n "$KEYSTORE_BASE64" ]; then
-            echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/research-widgets-ipc.jks"
-            echo "RESEARCH_WIDGETS_KEYSTORE=$RUNNER_TEMP/research-widgets-ipc.jks" >> "$GITHUB_ENV"
-          else
-            echo "No shared IPC keystore configured; this build uses its repository-local debug key."
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::Required repository secret RESEARCH_WIDGETS_KEYSTORE_BASE64 is missing or unavailable."
+            exit 1
           fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/research-widgets-ipc.jks"
+          if [ ! -s "$RUNNER_TEMP/research-widgets-ipc.jks" ]; then
+            echo "::error::The shared IPC keystore decoded to an empty file."
+            exit 1
+          fi
+          echo "RESEARCH_WIDGETS_KEYSTORE=$RUNNER_TEMP/research-widgets-ipc.jks" >> "$GITHUB_ENV"
+          echo "Shared IPC keystore received and decoded successfully."
       - name: Run tests and build debug APK
         env:
           RESEARCH_WIDGETS_KEYSTORE_PASSWORD: ${{ secrets.RESEARCH_WIDGETS_KEYSTORE_PASSWORD }}
