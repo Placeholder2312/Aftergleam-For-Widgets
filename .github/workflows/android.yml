@@ -1,7 +1,5 @@
 name: Android build and tests
 on:
-  push:
-    branches: [feature/research-widgets-integration]
   workflow_dispatch:
 permissions:
   contents: write
