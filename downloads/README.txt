@@ -1,13 +1,11 @@
-Aftergleam v1.8.1 signed debug APK
+Aftergleam v1.8.1 shared-signed debug APK
 
-This APK is stored in five binary parts because the full APK exceeded the GitHub API upload size limit used for this transfer.
+Download the `apk-downloads` branch as a ZIP and extract it. Open the `downloads` folder and double-click `Aftergleam-v1.8.1-join.bat`. It joins the five APK parts into `Aftergleam-v1.8.1-debug.apk`.
 
-To reconstruct it on Windows:
-1. Download this branch as a ZIP and extract it.
-2. Open the downloads folder.
-3. Double-click Aftergleam-v1.8.1-join.bat.
-4. The script creates Aftergleam-v1.8.1-debug.apk in the same folder.
+Version: 1.8.1 (version code 14)
+Source branch: feature/research-widgets-integration
+Build commit: 9c1060548bc5906b31c41f6b484da5e42a7396e3
+APK size: 14,358,398 bytes
+APK SHA-256: 9154561556063edaf05ef6bebd0b5fc5f97237d99adbcc18dcdaaedaa0956496
 
-Source: feature/research-widgets-integration, build commit 9c1060548bc5906b31c41f6b484da5e42a7396e3.
-Size: 14,358,398 bytes.
-SHA-256: 9e? Verify from the supplied APK before relying on this value.
+The APK was built by GitHub Actions and its shared signing certificate was verified by apksigner. It is a custom fork build, not the upstream Aftergleam release.
