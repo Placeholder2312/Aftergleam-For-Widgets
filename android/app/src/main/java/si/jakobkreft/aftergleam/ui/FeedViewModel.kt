@@ -51,6 +51,7 @@ import si.jakobkreft.aftergleam.data.Support
 import si.jakobkreft.aftergleam.data.Taste
 import si.jakobkreft.aftergleam.data.Topics
 import si.jakobkreft.aftergleam.data.Venue
+import si.jakobkreft.aftergleam.integration.ResearchWidgetsNotifier
 import si.jakobkreft.aftergleam.rank.DigestBuilder
 import si.jakobkreft.aftergleam.rank.Explain
 import si.jakobkreft.aftergleam.rank.Ranker
@@ -1333,6 +1334,7 @@ class FeedViewModel(app: Application) : AndroidViewModel(app) {
             support = support,
         ) }
         refreshCatchUp()
+        ResearchWidgetsNotifier.notifyDataChanged(getApplication())
         prewarm()
     }
 
@@ -1470,6 +1472,7 @@ class FeedViewModel(app: Application) : AndroidViewModel(app) {
                     )
                 }
                 if (prefs.keywordAlerts.isNotEmpty()) KeywordAlertWorker.schedule(getApplication())
+                ResearchWidgetsNotifier.notifyDataChanged(getApplication())
                 refreshKeywordCounts()
                 rerank()
             } catch (e: Exception) {
@@ -1520,6 +1523,7 @@ class FeedViewModel(app: Application) : AndroidViewModel(app) {
                     upsertPapers(result.papers)
                     result.papers.forEach { addSignal(it.id, Signal.LIKED) }
                 }.join()
+                ResearchWidgetsNotifier.notifyDataChanged(getApplication())
                 _state.update {
                     it.copy(
                         importProgress = null,
@@ -2465,7 +2469,7 @@ class FeedViewModel(app: Application) : AndroidViewModel(app) {
             val current = allReactions()[paperId] ?: Reaction.NONE
             setReaction(paperId, current.copy(saved = !current.saved))
             if (current.saved) removeSignal(paperId, Signal.SAVED) else addSignal(paperId, Signal.SAVED)
-        }
+        }.invokeOnCompletion { cause -> if (cause == null) ResearchWidgetsNotifier.notifyDataChanged(getApplication()) }
     }
 
     // Last in the class, so that everything above exists before anything here starts: what it

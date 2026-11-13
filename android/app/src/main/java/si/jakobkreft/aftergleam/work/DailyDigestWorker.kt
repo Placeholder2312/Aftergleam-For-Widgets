@@ -18,6 +18,7 @@ import si.jakobkreft.aftergleam.data.Paper
 import si.jakobkreft.aftergleam.data.Prefs
 import si.jakobkreft.aftergleam.data.Source
 import si.jakobkreft.aftergleam.rank.DigestBuilder
+import si.jakobkreft.aftergleam.integration.ResearchWidgetsNotifier
 
 /**
  * Fetches the day's papers and builds the digest before the reader wakes up. Started by the
@@ -69,7 +70,7 @@ class DailyDigestWorker(
             //
             // Failing here is not a failed run: the papers are stored, and the app will rank
             // them itself the moment it is opened.
-            runCatching { DigestBuilder.build(db, prefs, db.attention()) }
+            runCatching { DigestBuilder.build(db, prefs, db.attention()) }.onSuccess { ResearchWidgetsNotifier.notifyDataChanged(applicationContext) }
             Result.success()
         } catch (e: Exception) {
             Result.retry()
