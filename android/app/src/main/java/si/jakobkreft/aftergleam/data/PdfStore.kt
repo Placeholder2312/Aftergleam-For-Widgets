@@ -14,6 +14,7 @@ import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
+import si.jakobkreft.aftergleam.integration.ResearchWidgetsNotifier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -118,16 +119,20 @@ class PdfStore(private val context: Context) {
         val files = withContext(Dispatchers.IO) { downloads(paperId) }
         if (files.isEmpty()) return false
         if (openFile in files) release()
-        return withContext(Dispatchers.IO) { files.map { it.delete() }.all { it } }
+        val removed = withContext(Dispatchers.IO) { files.map { it.delete() }.all { it } }
+        ResearchWidgetsNotifier.notifyDataChanged(context)
+        return removed
     }
 
     /** Removes every download. Returns how many files went. */
     suspend fun deleteAll(): Int {
         release()
-        return withContext(Dispatchers.IO) {
+        val removed = withContext(Dispatchers.IO) {
             articles.deleteAll()
             listOf(dir, legacy).sumOf { d -> d.listFiles()?.count { it.delete() } ?: 0 }
         }
+        ResearchWidgetsNotifier.notifyDataChanged(context)
+        return removed
     }
 
     class DownloadError(message: String) : Exception(message)
@@ -193,6 +198,8 @@ class PdfStore(private val context: Context) {
             val target = fileFor(paper.id, ext)
             target.delete()
             if (!partial.renameTo(target)) throw DownloadError("Could not save the download")
+            // The companion widgets show a downloaded count, so tell them a download landed.
+            ResearchWidgetsNotifier.notifyDataChanged(context)
             target
         } finally {
             partial.delete()
