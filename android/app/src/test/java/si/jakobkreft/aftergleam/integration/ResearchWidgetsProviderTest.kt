@@ -85,6 +85,14 @@ class ResearchWidgetsProviderTest {
         assertFalse(PaperOpenActivity.isValidPaperId(null)); assertFalse(PaperOpenActivity.isValidPaperId(" paper-id "))
         assertFalse(PaperOpenActivity.isValidPaperId("paper\n-id")); assertFalse(PaperOpenActivity.isValidPaperId("x".repeat(201)))
     }
+    @Test fun libraryShelfRequestAcceptsOnlyTheKnownShelves() {
+        assertTrue(PaperOpenActivity.isValidShelf("downloaded")) // the Offline chip
+        assertTrue(PaperOpenActivity.isValidShelf("saved")); assertTrue(PaperOpenActivity.isValidShelf("reacted"))
+        assertFalse(PaperOpenActivity.isValidShelf(null)); assertFalse(PaperOpenActivity.isValidShelf(""))
+        assertFalse(PaperOpenActivity.isValidShelf("Downloaded")); assertFalse(PaperOpenActivity.isValidShelf("downloaded; DROP"))
+        assertEquals("si.jakobkreft.aftergleam.action.OPEN_WIDGET_LIBRARY", ResearchWidgetsContract.ACTION_OPEN_LIBRARY)
+        assertEquals("si.jakobkreft.aftergleam.extra.WIDGET_LIBRARY_SHELF", ResearchWidgetsContract.EXTRA_LIBRARY_SHELF)
+    }
     @Test fun providerDeclaresSignatureReadPermission() {
         val info = context.packageManager.resolveContentProvider(ResearchWidgetsContract.AUTHORITY, PackageManager.GET_META_DATA)
         assertTrue(info != null); assertEquals(ResearchWidgetsContract.READ_PERMISSION, info!!.readPermission)

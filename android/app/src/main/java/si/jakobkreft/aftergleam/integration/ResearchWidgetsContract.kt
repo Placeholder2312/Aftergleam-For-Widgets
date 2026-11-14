@@ -24,7 +24,10 @@ object ResearchWidgetsContract {
     val DOWNLOADED_URI: Uri = Uri.parse("content://$AUTHORITY/$PATH_DOWNLOADED")
     const val ACTION_OPEN_PAPER = "si.jakobkreft.aftergleam.action.OPEN_WIDGET_PAPER"
     const val EXTRA_PAPER_ID = "si.jakobkreft.aftergleam.extra.WIDGET_PAPER_ID"
-    const val ACTION_DATA_CHANGED = "si.jakobkreft.aftergleam.action.RESEARCH_WIDGETS_DATA_CHANGED"
+    /** Opens the Library tab on one shelf ("saved", "downloaded" or "reacted"); the shelf goes in [EXTRA_LIBRARY_SHELF]. */
+    const val ACTION_OPEN_LIBRARY = "si.jakobkreft.aftergleam.action.OPEN_WIDGET_LIBRARY"
+    const val EXTRA_LIBRARY_SHELF = "si.jakobkreft.aftergleam.extra.WIDGET_LIBRARY_SHELF"
+    const val ACTION_DATA_CHANGED ="si.jakobkreft.aftergleam.action.RESEARCH_WIDGETS_DATA_CHANGED"
     const val EXTRA_REVISION = "si.jakobkreft.aftergleam.extra.WIDGET_DATA_REVISION"
 }
 

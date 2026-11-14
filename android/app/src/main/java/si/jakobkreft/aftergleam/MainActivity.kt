@@ -170,6 +170,8 @@ private fun App(vm: FeedViewModel = viewModel()) {
     // moving, and the page has something on it by the time it arrives.
     val tab = Tab.entries[pager.currentPage]
     val pagerScope = rememberCoroutineScope()
+    // A Library shelf a widget asked for, until the Library screen has taken it.
+    var libraryRequest by rememberSaveable { mutableStateOf<String?>(null) }
 
     /**
      * Goes to a tab: slid to when it is next door, the way a swipe arrives, and jumped to
@@ -334,6 +336,17 @@ private fun App(vm: FeedViewModel = viewModel()) {
             activity.opened = null
             intent.getStringExtra(Notifications.EXTRA_PAPER)?.let(vm::openPaperById)
             intent.getStringExtra(Notifications.EXTRA_KEYWORD)?.let(vm::showKeywordPapers)
+            // A widget asked for the Library on one shelf: leave whatever is covering the tabs, then go there.
+            intent.getStringExtra(Notifications.EXTRA_LIBRARY_SHELF)?.let { shelf ->
+                val now = vm.state.value
+                if (now.reading != null) vm.closeReader()
+                if (now.detail != null) vm.closeDetail()
+                if (now.pastOpen) vm.closePast()
+                if (now.searchOpen) vm.closeSearch()
+                showTune = false
+                libraryRequest = shelf
+                show(Tab.LIBRARY)
+            }
         }
 
         val reading = state.reading
@@ -750,6 +763,8 @@ private fun App(vm: FeedViewModel = viewModel()) {
                         ),
                         orders = state.libraryOrders,
                         onOrder = vm::setLibraryOrder,
+                        requestedShelf = libraryRequest,
+                        onShelfShown = { libraryRequest = null },
                     )
                 }
                 }

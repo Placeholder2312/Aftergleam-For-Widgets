@@ -48,6 +48,8 @@ object Notifications {
 
     const val EXTRA_PAPER = "si.jakobkreft.aftergleam.PAPER"
     const val EXTRA_KEYWORD = "si.jakobkreft.aftergleam.KEYWORD"
+    /** Which Library shelf to open on, from a widget. See [si.jakobkreft.aftergleam.ui.LibraryShelf.action]. */
+    const val EXTRA_LIBRARY_SHELF = "si.jakobkreft.aftergleam.LIBRARY_SHELF"
     private const val EXTRA_ID = "si.jakobkreft.aftergleam.NOTIFICATION"
     private const val EXTRA_GROUP = "si.jakobkreft.aftergleam.GROUP"
     private const val ACTION_SAVE = "si.jakobkreft.aftergleam.SAVE"

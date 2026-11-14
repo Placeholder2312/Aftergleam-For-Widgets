@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
@@ -91,8 +92,17 @@ fun LibraryScreen(
     actedAt: Map<LibraryShelf, Map<String, Long>>,
     orders: Map<LibraryShelf, LibraryOrder>,
     onOrder: (LibraryShelf, LibraryOrder) -> Unit,
+    /** A shelf to switch to, by [LibraryShelf.action] (a widget asked for it); handed back through [onShelfShown]. */
+    requestedShelf: String? = null,
+    onShelfShown: () -> Unit = {},
 ) {
     var shelf by rememberSaveable { mutableStateOf(LibraryShelf.SAVED) }
+    LaunchedEffect(requestedShelf) {
+        if (requestedShelf != null) {
+            LibraryShelf.entries.firstOrNull { it.action == requestedShelf }?.let { shelf = it }
+            onShelfShown()
+        }
+    }
     var confirmDeleteAll by rememberSaveable { mutableStateOf(false) }
     val context = LocalContext.current
     val order = orders[shelf] ?: LibraryOrder.RECENT
