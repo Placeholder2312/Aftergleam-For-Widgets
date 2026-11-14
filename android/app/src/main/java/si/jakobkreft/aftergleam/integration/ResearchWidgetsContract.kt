@@ -10,6 +10,7 @@ object ResearchWidgetsContract {
     const val COMPANION_PACKAGE = "com.placeholder2312.researchwidgets"
     const val PATH_RECOMMENDED = "v1/recommended"
     const val PATH_SAVED = "v1/saved"
+    const val PATH_DOWNLOADED = "v1/downloaded"
     const val COLUMN_PAPER_ID = "paper_id"
     const val COLUMN_TITLE = "title"
     const val COLUMN_AUTHORS = "authors"
@@ -20,6 +21,7 @@ object ResearchWidgetsContract {
     val COLUMNS = arrayOf(COLUMN_PAPER_ID, COLUMN_TITLE, COLUMN_AUTHORS, COLUMN_SOURCE, COLUMN_PUBLISHED, COLUMN_FEED_POSITION, COLUMN_FEED_TYPE)
     val RECOMMENDED_URI: Uri = Uri.parse("content://$AUTHORITY/$PATH_RECOMMENDED")
     val SAVED_URI: Uri = Uri.parse("content://$AUTHORITY/$PATH_SAVED")
+    val DOWNLOADED_URI: Uri = Uri.parse("content://$AUTHORITY/$PATH_DOWNLOADED")
     const val ACTION_OPEN_PAPER = "si.jakobkreft.aftergleam.action.OPEN_WIDGET_PAPER"
     const val EXTRA_PAPER_ID = "si.jakobkreft.aftergleam.extra.WIDGET_PAPER_ID"
     const val ACTION_DATA_CHANGED = "si.jakobkreft.aftergleam.action.RESEARCH_WIDGETS_DATA_CHANGED"
@@ -33,6 +35,7 @@ object ResearchWidgetsNotifier {
         val app = context.applicationContext
         app.contentResolver.notifyChange(ResearchWidgetsContract.RECOMMENDED_URI, null)
         app.contentResolver.notifyChange(ResearchWidgetsContract.SAVED_URI, null)
+        app.contentResolver.notifyChange(ResearchWidgetsContract.DOWNLOADED_URI, null)
         val next = synchronized(this) { revision = maxOf(System.currentTimeMillis(), revision + 1L); revision }
         val intent = Intent(ResearchWidgetsContract.ACTION_DATA_CHANGED)
             .setPackage(ResearchWidgetsContract.COMPANION_PACKAGE)
