@@ -2,7 +2,7 @@ name: Android build and tests
 on:
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   android:
     runs-on: ubuntu-latest
@@ -55,7 +55,25 @@ jobs:
           APKSIGNER="$(find "$ANDROID_HOME/build-tools" -type f -name apksigner -print | sort -V | tail -n 1)"
           test -n "$APKSIGNER"
           "$APKSIGNER" verify --verbose --print-certs "$APK"
-      - name: Upload debug APK
+      - name: Read APK version
+        working-directory: android
+        run: |
+          VERSION_NAME="$(sed -n 's/.*versionName = "\([^"]*\)".*/\1/p' app/build.gradle.kts | head -n 1)"
+          test -n "$VERSION_NAME"
+          echo "VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+      - name: Publish APK to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: aftergleam-v${{ env.VERSION_NAME }}-build-${{ github.run_number }}
+          name: Aftergleam v${{ env.VERSION_NAME }} (build #${{ github.run_number }})
+          target_commitish: ${{ github.sha }}
+          body: |
+            Debug APK built from `${{ github.sha }}` on `${{ github.ref_name }}`.
+            Shared signing certificate verified by the workflow.
+          files: android/app/build/outputs/apk/debug/*.apk
+          prerelease: true
+          make_latest: false
+      - name: Upload debug APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: aftergleam-widget-fork-debug-apk
